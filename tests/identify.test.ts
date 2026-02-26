@@ -58,6 +58,48 @@ describe("POST /identify", () => {
     expect(response.body.contact.secondaryContactIds).toContain(createdSecondary?.id);
   });
 
+  it("returns the same contact for PDF null-identifier variants", async () => {
+    const initial = await request(app).post("/identify").send({
+      email: "lorraine@hillvalley.edu",
+      phoneNumber: "123456",
+    });
+
+    const withNewEmail = await request(app).post("/identify").send({
+      email: "mcfly@hillvalley.edu",
+      phoneNumber: "123456",
+    });
+
+    const byPhoneOnly = await request(app).post("/identify").send({
+      email: null,
+      phoneNumber: "123456",
+    });
+    const byPrimaryEmailOnly = await request(app).post("/identify").send({
+      email: "lorraine@hillvalley.edu",
+      phoneNumber: null,
+    });
+    const bySecondaryEmailOnly = await request(app).post("/identify").send({
+      email: "mcfly@hillvalley.edu",
+      phoneNumber: null,
+    });
+
+    expect(initial.status).toBe(200);
+    expect(withNewEmail.status).toBe(200);
+    expect(byPhoneOnly.status).toBe(200);
+    expect(byPrimaryEmailOnly.status).toBe(200);
+    expect(bySecondaryEmailOnly.status).toBe(200);
+
+    const expectedContact = {
+      primaryContatctId: 1,
+      emails: ["lorraine@hillvalley.edu", "mcfly@hillvalley.edu"],
+      phoneNumbers: ["123456"],
+      secondaryContactIds: [2],
+    };
+
+    expect(byPhoneOnly.body.contact).toEqual(expectedContact);
+    expect(byPrimaryEmailOnly.body.contact).toEqual(expectedContact);
+    expect(bySecondaryEmailOnly.body.contact).toEqual(expectedContact);
+  });
+
   it("merges two primary clusters and keeps the oldest primary", async () => {
     const oldestPrimaryId = contactRepository.createContact({
       email: "george@hillvalley.edu",

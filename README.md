@@ -29,6 +29,25 @@ npm run dev
 
 Server starts on `http://localhost:3000`.
 
+## Deployed API (Render)
+
+Base URL:
+
+`https://bitespeed-backend-task-fggm.onrender.com`
+
+Production endpoints:
+
+- `GET /health`
+- `POST /identify`
+
+Example request:
+
+```bash
+curl -X POST https://bitespeed-backend-task-fggm.onrender.com/identify \
+  -H "Content-Type: application/json" \
+  -d "{\"email\":\"mcfly@hillvalley.edu\",\"phoneNumber\":\"123456\"}"
+```
+
 ## Environment variables (`.env`)
 
 - `NODE_ENV=development`
